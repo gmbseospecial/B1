@@ -1,3 +1,14 @@
+// Silence IDE-specific visual editor errors in console (Internal Trae tool logs)
+(function() {
+    const originalError = console.error;
+    console.error = function(...args) {
+        if (args[0] && typeof args[0] === 'string' && (args[0].includes('visualEditorElementSelected') || args[0].includes('No handler registered'))) {
+            return;
+        }
+        originalError.apply(console, args);
+    };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -113,5 +124,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { threshold: 0.15 });
 
         revealElements.forEach((element) => observer.observe(element));
+    }
+
+    // Floating Support Button Toggle
+    const fabContainer = document.querySelector('.fab-container');
+    const fabMain = document.getElementById('fabMain');
+
+    if (fabContainer && fabMain) {
+        fabMain.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fabContainer.classList.toggle('active');
+            fabMain.classList.toggle('active');
+            
+            const icon = fabMain.querySelector('i');
+            if (fabMain.classList.contains('active')) {
+                icon.classList.remove('fa-headset');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-headset');
+            }
+        });
+
+        // Close FAB when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!fabContainer.contains(e.target)) {
+                fabContainer.classList.remove('active');
+                fabMain.classList.remove('active');
+                const icon = fabMain.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-headset');
+                }
+            }
+        });
     }
 });
